@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./employee_frontend_final
+      dockerfile: Dockerfile  # Use the Dockerfile for the frontend
+    ports:
+      - "4200:80"  # Maps host port 4200 to container port 80 where Nginx serves the app
+
+  app:
+    build:
+      context: ./emp_backend  # Specify the folder where the backend Dockerfile is located
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"  # Expose the backend service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/emp_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0  # MySQL database service
+    environment:
+      MYSQL_DATABASE: emp_db
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"  # Expose the database service
+    volumes:
+      - db_data:/var/lib/mysql  # Persist database data
+
+volumes:
+  db_data:  # Define the volume for database persistence
